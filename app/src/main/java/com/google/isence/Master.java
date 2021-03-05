@@ -34,6 +34,7 @@ public class Master extends AppCompatActivity{
     private Location final_loc;
     private double latitude;
     private double longitude;
+    public LinearLayout linearLayout;
 
 
     @Override
@@ -64,7 +65,7 @@ public class Master extends AppCompatActivity{
             latitude = final_loc.getLatitude();
             longitude = final_loc.getLongitude();
         }
-
+         linearLayout = (LinearLayout)findViewById(R.id.ll);
         database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("Location");
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -74,7 +75,7 @@ public class Master extends AppCompatActivity{
                     VehicleLocation vehicleLocation=postSnapshot.getValue(VehicleLocation.class);
                     double distance= distance(vehicleLocation.getLatitude(),vehicleLocation.getLongitude(),latitude,longitude);
                     if(distance < 1){
-                        LinearLayout linearLayout = (LinearLayout)findViewById(R.id.ll);
+
                         Button btn = new Button(getApplicationContext());
                         btn.setText(vehicleLocation.getRegNo());
                         btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));

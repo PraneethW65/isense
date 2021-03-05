@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private String password;
     private EditText emailText;
     private EditText pwText;
+    public FirebaseUser fbuser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,21 +80,19 @@ public class MainActivity extends AppCompatActivity {
         if(user == null){
             //code when there is no user
         }else {
+            fbuser=user;
             goScannerPage();
         }
     }
 
     public void goScannerPage(){
-
-        Intent intent=new Intent(this, Master.class);
+        Intent intent=new Intent(this, Dash.class);
         startActivity(intent);
-        finish();
     }
 
     public void goIOTemulator(View view){
         Intent intent=new Intent(this, Emulate.class);
         startActivity(intent);
-        finish();
     }
 
 
