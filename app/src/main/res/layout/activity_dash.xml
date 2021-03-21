@@ -134,6 +134,7 @@
                 android:layout_width="160dp"
                 android:layout_height="160dp"
                 android:layout_margin="10dp"
+                android:onClick="goHistory"
                 android:clickable="true"
                 android:foreground="?selectableItemBackgroundBorderless">
 
@@ -170,6 +171,7 @@
                 android:layout_width="160dp"
                 android:layout_height="160dp"
                 android:layout_margin="10dp"
+                android:onClick="goSearch"
                 android:clickable="true"
                 android:foreground="?selectableItemBackgroundBorderless">
 
@@ -215,6 +217,7 @@
                 android:layout_width="160dp"
                 android:layout_height="160dp"
                 android:layout_margin="10dp"
+                android:onClick="goMyProfile"
                 android:clickable="true"
                 android:foreground="?selectableItemBackgroundBorderless">
 

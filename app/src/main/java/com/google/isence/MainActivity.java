@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.auth.User;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user=mAuth.getCurrentUser();
+        updateUI(user);
         emailText = findViewById(R.id.email);
         pwText = findViewById(R.id.pw);
     }
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
         email=emailText.getText().toString();
         password=pwText.getText().toString();
+
+        Log.d(TAG, email);
 
         if(email.isEmpty()){
             emailText.setError("Please Enter an email");
