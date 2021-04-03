@@ -14,9 +14,13 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Search extends AppCompatActivity {
 
@@ -62,7 +66,11 @@ public class Search extends AppCompatActivity {
                         tv.setTextSize(25);
                         tv.setLayoutParams(lparams);
                         tv.setBackgroundColor(Color.GRAY);
-                        year=document.get("From").toString();
+
+                        Timestamp timestamp=(Timestamp)document.get("From");
+                        Date date = timestamp.toDate();
+                        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                        year = formatter.format(date);
 
                         DocumentReference docRef = db.collection("Register").document(reg);
                         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

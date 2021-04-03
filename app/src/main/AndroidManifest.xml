@@ -19,7 +19,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Isence">
-        <activity android:name=".History"></activity>
+        <activity android:name=".Vehicle"></activity>
+        <activity android:name=".History" />
         <activity android:name=".Profile" />
         <activity android:name=".Search" />
         <activity android:name=".BarcodeScanner" />

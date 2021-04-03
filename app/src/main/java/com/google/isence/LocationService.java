@@ -50,7 +50,7 @@ public class LocationService extends Service {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000, 0, listener);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        vehicle = "BA2314";
+        vehicle = "CAX7124";
     }
 
     @Override

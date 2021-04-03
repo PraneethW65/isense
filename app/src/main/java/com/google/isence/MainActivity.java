@@ -93,12 +93,9 @@ public class MainActivity extends AppCompatActivity {
     public void goScannerPage(){
         Intent intent=new Intent(this, Dash.class);
         startActivity(intent);
+        finish();
     }
 
-    public void goIOTemulator(View view){
-        Intent intent=new Intent(this, Emulate.class);
-        startActivity(intent);
-    }
 
 
 }

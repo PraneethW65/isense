@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -36,8 +37,11 @@ public class BarcodeScanner extends AppCompatActivity implements ZXingScannerVie
 
     @Override
     public void handleResult(Result result) {
-        Toast.makeText(this, result.getText().toString(),
-                Toast.LENGTH_LONG).show();
+        Toast.makeText(this, result.getText().toString(),Toast.LENGTH_LONG).show();
+        Intent intent=new Intent(this, Vehicle.class);
+        intent.putExtra("Vehicle", result.getText());
+        startActivity(intent);
+        finish();
     }
 
 }
