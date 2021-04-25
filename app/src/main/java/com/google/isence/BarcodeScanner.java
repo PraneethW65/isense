@@ -16,10 +16,14 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 public class BarcodeScanner extends AppCompatActivity implements ZXingScannerView.ResultHandler{
 
     private ZXingScannerView mScannerView;
+    private static final int MY_CAMERA_REQUEST_CODE = 100;
 
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+        }
         mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view
         setContentView(mScannerView);
     }

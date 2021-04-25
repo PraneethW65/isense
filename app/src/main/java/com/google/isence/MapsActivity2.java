@@ -8,26 +8,15 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,8 +28,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,25 +37,30 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class  MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    public DatabaseReference databaseReference;
-    public FirebaseDatabase database;
+    public String regNo;
     public int first;
     private Location gps_loc;
     private Location final_loc;
     private double latitude;
     private double longitude;
     public Map<String, Marker> markers;
+    private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_maps2);
+
+        regNo = getIntent().getStringExtra("REG_NO");
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
         first = 0;
 
         markers = new HashMap();
@@ -95,44 +87,38 @@ public class  MapsActivity extends FragmentActivity implements OnMapReadyCallbac
             longitude = final_loc.getLongitude();
         }
 
-
-            database = FirebaseDatabase.getInstance();
-            databaseReference = database.getReference("Location");
-            databaseReference.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        VehicleLocation vehicleLocation = postSnapshot.getValue(VehicleLocation.class);
-                        double distance = distance(vehicleLocation.getLatitude(), vehicleLocation.getLongitude(), latitude, longitude);
-                        Log.i("*****", "dd" + distance);
-                        if (distance < 500) {
-                            if (markers.containsKey(vehicleLocation.getRegNo())) {
-                                Marker instanceMarker= markers.getOrDefault(vehicleLocation.getRegNo(),null);
-                                LatLng carLoc = new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude());
-                                instanceMarker.setPosition(carLoc);
-                                Log.i("*****", "old loc");
-                            }else{
-                                LatLng carLoc = new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude());
-                                Marker carMarker = mMap.addMarker(new MarkerOptions().position(carLoc).title(vehicleLocation.getRegNo()+" : "+(int)distance+"meters").icon(bitmapDescriptorFromVector(R.drawable.ic_baseline_location_on_24)));
-                                markers.put(vehicleLocation.getRegNo(), carMarker);
-                                Log.i("*****", "new loc");
-                            }
-
-
+        database = FirebaseDatabase.getInstance();
+        databaseReference = database.getReference("Location").child(regNo);
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                    VehicleLocation vehicleLocation = dataSnapshot.getValue(VehicleLocation.class);
+                    double distance = distance(vehicleLocation.getLatitude(), vehicleLocation.getLongitude(), latitude, longitude);
+                    Log.i("*****", "dd" + distance);
+                    if (distance < 2000) {
+                        if (markers.containsKey(vehicleLocation.getRegNo())) {
+                            Marker instanceMarker= markers.getOrDefault(vehicleLocation.getRegNo(),null);
+                            LatLng carLoc = new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude());
+                            instanceMarker.setPosition(carLoc);
+                            Log.i("*****", "old loc");
+                        }else{
+                            LatLng carLoc = new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude());
+                            Marker carMarker = mMap.addMarker(new MarkerOptions().position(carLoc).title(vehicleLocation.getRegNo()+" : "+(int)distance+"meters").icon(bitmapDescriptorFromVector(R.drawable.ic_baseline_location_on_24)));
+                            markers.put(vehicleLocation.getRegNo(), carMarker);
+                            Log.i("*****", "new loc");
                         }
+
+
                     }
-                }
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                }
+            }
 
-            });
-        }
-
-
-
+        });
+    }
 
     /**
      * Manipulates the map once available.
@@ -145,7 +131,6 @@ public class  MapsActivity extends FragmentActivity implements OnMapReadyCallbac
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.i("*****", "Location on map");
         mMap = googleMap;
         LatLng carLoc = new LatLng(latitude,longitude);
         CircleOptions circleOptions = new CircleOptions();
@@ -159,6 +144,7 @@ public class  MapsActivity extends FragmentActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(carLoc, 15));
         first = 1;
     }
+
 
     private double distance(double lat1, double lon1, double lat2, double lon2) {
         double theta = lon1 - lon2;
@@ -180,7 +166,7 @@ public class  MapsActivity extends FragmentActivity implements OnMapReadyCallbac
         return (rad * 180.0 / Math.PI);
     }
 
-    private BitmapDescriptor bitmapDescriptorFromVector(@DrawableRes  int vectorDrawableResourceId) {
+    private BitmapDescriptor bitmapDescriptorFromVector(@DrawableRes int vectorDrawableResourceId) {
         Drawable background = ContextCompat.getDrawable(this, R.drawable.car_b);
         background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
         Drawable vectorDrawable = ContextCompat.getDrawable(this, vectorDrawableResourceId);
@@ -191,5 +177,4 @@ public class  MapsActivity extends FragmentActivity implements OnMapReadyCallbac
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
-
 }
