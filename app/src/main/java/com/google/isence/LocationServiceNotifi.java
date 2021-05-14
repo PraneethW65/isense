@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -15,6 +16,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,16 +25,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.Serializable;
 
 public class LocationServiceNotifi extends Service {
     public static final String BROADCAST_ACTION = "Hello World";
@@ -166,6 +165,13 @@ public class LocationServiceNotifi extends Service {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             VehicleLocation vehicleLocation = postSnapshot.getValue(VehicleLocation.class);
+
+                            SharedPreferences sharePref= PreferenceManager.getDefaultSharedPreferences(LocationServiceNotifi.this);
+                            SharedPreferences.Editor editor = sharePref.edit();
+                            editor.putFloat("Latitude",(float)loc.getLatitude());
+                            editor.putFloat("Longitude",(float)loc.getLongitude());
+                            editor.apply();
+
                             double distance = distance(vehicleLocation.getLatitude(), vehicleLocation.getLongitude(), loc.getLatitude(), loc.getLongitude());
 
                             if (distance < 5000) {

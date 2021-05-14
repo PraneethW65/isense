@@ -15,10 +15,20 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class LocationService extends Service {
     public static final String BROADCAST_ACTION = "Hello World";
@@ -26,6 +36,8 @@ public class LocationService extends Service {
     public LocationManager locationManager;
     public MyLocationListener listener;
     public Location previousBestLocation = null;
+    private FirebaseFirestore db;
+    public String TAG="SRA";
 
     Intent intent;
     int counter = 0;
@@ -51,6 +63,28 @@ public class LocationService extends Service {
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         vehicle = "CAX7124";
+
+        DocumentReference docRef2 = db.collection("license").document(vehicle);
+        docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("SRA", "DocumentSnapshot data: " + document.getData());
+                        Timestamp timestamp=(Timestamp)document.get("From");
+                        Date date = timestamp.toDate();
+                        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                        String strDate = formatter.format(date);
+
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
     }
 
     @Override

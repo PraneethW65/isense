@@ -2,9 +2,19 @@ package com.google.isence;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -46,6 +56,8 @@ public class Vehicle extends AppCompatActivity {
     public String NIC;
     private FirebaseAuth mAuth;
     private String email;
+    private double latitude;
+    private double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,37 +133,62 @@ public class Vehicle extends AppCompatActivity {
                 }
             }
         });
+
+
     }
 
     public void report(View view){
 
-        Map<String, Object> user = new HashMap<>();
-        user.put("NIC", NIC);
-        user.put("Vehicle", reg);
-        user.put("Date", new Timestamp(new Date()));
-        user.put("Police", email);
-        user.put("Paid", false);
+        SharedPreferences sharePref= PreferenceManager.getDefaultSharedPreferences(this);
+        longitude=sharePref.getFloat("Longitude",80);
+        latitude=sharePref.getFloat("Latitude",7);
 
-        // Add a new document with a generated ID
-        db.collection("Report")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                        Toast.makeText(Vehicle.this, "Successfully Added", Toast.LENGTH_SHORT).show();
-                        Intent intent=new Intent(Vehicle.this, Dash.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                        Toast.makeText(Vehicle.this, "Something Wrong", Toast.LENGTH_SHORT).show();
+        AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
+        dlgAlert.setMessage("Click OK to confirm report");
+        dlgAlert.setTitle("Report violator");
+
+        dlgAlert.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        Map<String, Object> user = new HashMap<>();
+                        user.put("NIC", NIC);
+                        user.put("Vehicle", reg);
+                        user.put("Date", new Timestamp(new Date()));
+                        user.put("Police", email);
+                        user.put("Paid", false);
+                        user.put("longitude", longitude);
+                        user.put("latitude", latitude);
+
+                        // Add a new document with a generated ID
+                        db.collection("Report")
+                                .add(user)
+                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                        Toast.makeText(Vehicle.this, "Successfully Added", Toast.LENGTH_SHORT).show();
+                                        Intent intent=new Intent(Vehicle.this, Dash.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error adding document", e);
+                                        Toast.makeText(Vehicle.this, "Something Wrong", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+
                     }
                 });
+
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
+
+
 
     }
 }

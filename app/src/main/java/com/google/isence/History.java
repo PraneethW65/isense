@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -12,6 +14,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,10 +25,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class History extends AppCompatActivity {
 
@@ -36,6 +41,7 @@ public class History extends AppCompatActivity {
     public EditText SearchTxt;
     private FirebaseAuth mAuth;
     private String email;
+    public String add;
 
 
     @Override
@@ -76,7 +82,8 @@ public class History extends AppCompatActivity {
                                 Date date = timestamp.toDate();
                                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
                                 String strDate = formatter.format(date);
-                                tv.setText(" <-| "+strDate+ " | "+document.get("Vehicle").toString()+" | "+document.get("NIC").toString()+" |-> ");
+
+                                tv.setText(" You Report "+document.get("Vehicle").toString()+ " at  "+strDate+" from "+getAddress(document.getDouble("latitude"),document.getDouble("longitude"))+".");
                                 LL.addView(tv);
 
                             }
@@ -86,6 +93,22 @@ public class History extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+
+    public String getAddress(double lat, double lng) {
+        Geocoder geocoder = new Geocoder(History.this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            Address obj = addresses.get(0);
+            add = obj.getAddressLine(0);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        return add;
     }
 
 
