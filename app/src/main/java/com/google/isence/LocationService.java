@@ -64,27 +64,8 @@ public class LocationService extends Service {
         firebaseDatabase = FirebaseDatabase.getInstance();
         vehicle = "CAX7124";
 
-        DocumentReference docRef2 = db.collection("license").document(vehicle);
-        docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d("SRA", "DocumentSnapshot data: " + document.getData());
-                        Timestamp timestamp=(Timestamp)document.get("From");
-                        Date date = timestamp.toDate();
-                        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-                        String strDate = formatter.format(date);
+        db = FirebaseFirestore.getInstance();
 
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
     }
 
     @Override
@@ -175,9 +156,34 @@ public class LocationService extends Service {
             Log.i("*****", "Location changed");
             if(isBetterLocation(loc, previousBestLocation)) {
 
-                VehicleLocation bData= new VehicleLocation(loc.getLatitude(),loc.getLongitude(),vehicle);
-                databaseReference = firebaseDatabase.getReference("Location");
-                databaseReference.child(vehicle).setValue(bData);
+                DocumentReference docRef2 = db.collection("license").document(vehicle);
+                docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Log.d("SRA", "DocumentSnapshot data: " + document.getData());
+                                Timestamp timestamp = (Timestamp) document.get("From");
+                                Date date = timestamp.toDate();
+                                Date currentDate = new Date();
+                                if (date.after(currentDate)) {
+                                    System.out.println("after ");
+                                } else {
+                                    VehicleLocation bData = new VehicleLocation(loc.getLatitude(), loc.getLongitude(), vehicle);
+                                    databaseReference = firebaseDatabase.getReference("Location");
+                                    databaseReference.child(vehicle).setValue(bData);
+                                }
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
+
+
 
                 intent.putExtra("Latitude", loc.getLatitude());
                 intent.putExtra("Longitude", loc.getLongitude());

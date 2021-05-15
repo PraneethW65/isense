@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,18 +29,45 @@ public class Search extends AppCompatActivity {
     private FirebaseFirestore db;
     public String TAG="SRA";
     private LinearLayout LL;
-    public String reg;
-    public String year;
+    private String reg;
+    public TextView li;
+    public TextView nic;
+    public TextView na;
+    public TextView carname;
+    public TextView regis;
+    public TextView address;
+    public TextView color;
+    public TextView model;
+    public TextView type;
+    public TextView year;
+    public TextView feee;
+    public TextView from;
+    public String NIC;
+    private FirebaseAuth mAuth;
+    private String email;
+    private double latitude;
+    private double longitude;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
+        nic = findViewById(R.id.nic);
+        na = findViewById(R.id.name);
+        carname = findViewById(R.id.surname);
+        address = findViewById(R.id.address);
+        color = findViewById(R.id.color);
+        model = findViewById(R.id.model);
+        type = findViewById(R.id.type);
+        year = findViewById(R.id.year);
+        feee = findViewById(R.id.fee);
+        from = findViewById(R.id.from);
+
         customReg=findViewById(R.id.search);
         db = FirebaseFirestore.getInstance();
-
-        LL=(LinearLayout) this.findViewById(R.id.ll2);
 
     }
 
@@ -49,7 +77,7 @@ public class Search extends AppCompatActivity {
         reg=customReg.getText().toString();
         reg.toUpperCase();
         Log.d(TAG, "reg: " + reg);
-        DocumentReference docRef = db.collection("license").document(reg);
+        DocumentReference docRef = db.collection("Register").document(reg);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -57,39 +85,38 @@ public class Search extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        LinearLayout.LayoutParams lparams = new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                        TextView tv = new TextView(Search.this);
-                        lparams.gravity = Gravity.CENTER;
-                        lparams.setMargins(10, 60, 10, 10);
-                        tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.car_b, 0, 0, 0);
-                        tv.setTextSize(25);
-                        tv.setLayoutParams(lparams);
-                        tv.setBackgroundColor(Color.GRAY);
+                        nic.setText("NIC : "+document.get("NIC").toString());
+                        color.setText("COLOR : "+document.get("Color").toString());
+                        carname.setText("Registration No : "+reg);
+                        model.setText("MODEL : "+document.get("Make").toString());
+                        type.setText("TYPE : "+document.get("Type").toString());
+                        year.setText("YEAR : "+document.get("Year").toString());
+                        NIC=document.get("NIC").toString();
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
 
+        DocumentReference docRef2 = db.collection("license").document(reg);
+        docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        na.setText("NAME : "+document.get("oName").toString());
+                        address.setText("ADDRESS : "+document.get("address").toString());
+                        feee.setText("ANNUAL FEE : "+document.get("AnnualFee").toString());
                         Timestamp timestamp=(Timestamp)document.get("From");
                         Date date = timestamp.toDate();
                         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-                        year = formatter.format(date);
-
-                        DocumentReference docRef = db.collection("Register").document(reg);
-                        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document.exists()) {
-                                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                        tv.setText(document.get("Model").toString() + "  "+year+ "  "+reg);
-                                        LL.addView(tv);
-                                    } else {
-                                        Log.d(TAG, "No such document");
-                                    }
-                                } else {
-                                    Log.d(TAG, "get failed with ", task.getException());
-                                }
-                            }
-                        });
+                        String strDate = formatter.format(date);
+                        from.setText("VALID FROM : "+ strDate);
 
                     } else {
                         Log.d(TAG, "No such document");
