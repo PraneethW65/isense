@@ -117,7 +117,7 @@ public class  MapsActivity extends FragmentActivity implements OnMapReadyCallbac
                                 markers.put(vehicleLocation.getRegNo(), carMarker);
                                 Log.i("*****", "new loc");
                             }
-
+                            markers.clear();
 
                         }
                     }

@@ -167,12 +167,19 @@ public class LocationService extends Service {
                                 Timestamp timestamp = (Timestamp) document.get("From");
                                 Date date = timestamp.toDate();
                                 Date currentDate = new Date();
-                                if (date.after(currentDate)) {
-                                    System.out.println("after ");
-                                } else {
+                                if (date.before(currentDate)) {
+
                                     VehicleLocation bData = new VehicleLocation(loc.getLatitude(), loc.getLongitude(), vehicle);
                                     databaseReference = firebaseDatabase.getReference("Location");
                                     databaseReference.child(vehicle).setValue(bData);
+                                    Log.d("SRA", "DateBefore: " + date);
+
+                                } else {
+
+                                    VehicleLocation bData = new VehicleLocation(0.0, 0.0, vehicle);
+                                    databaseReference = firebaseDatabase.getReference("Location");
+                                    databaseReference.child(vehicle).setValue(bData);
+                                    Log.d("SRA", "DateAfter: " + date);
                                 }
                             } else {
                                 Log.d(TAG, "No such document");
